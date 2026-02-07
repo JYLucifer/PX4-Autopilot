@@ -129,6 +129,10 @@ set(msg_files
 	LandingTargetPose.msg
 	LaunchDetectionStatus.msg
 	LedControl.msg
+	LinktrackData.msg
+	LinktrackDataframe.msg
+	LinktrackNode.msg
+	LinktrackNodeframe.msg
 	LoggerStatus.msg
 	LogMessage.msg
 	MagnetometerBiasEstimate.msg

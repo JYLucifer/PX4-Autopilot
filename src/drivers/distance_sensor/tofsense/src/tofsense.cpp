@@ -43,13 +43,16 @@ using namespace tofsense;
 
 #define MODULE_NAME "tofsense"
 
+static constexpr uint32_t TOFSENSE_BAUDRATE = B921600;
+static constexpr float MIN_DISTANCE_M = 0.03f;
+static constexpr float MAX_DISTANCE_M = 8.0f;
+static constexpr float FOV_RADIANS = math::radians(27.0f);
+
 TofSense::TofSense(const char *port, uint8_t rotation) :
 	ScheduledWorkItem(MODULE_NAME, px4::serial_port_to_wq(port)),
-	_px4_rangefinder(0, rotation),
-	_rotation(rotation)
+	_px4_rangefinder(0, rotation)
 {
 	strncpy(_port, port, sizeof(_port) - 1);
-
 	_port[sizeof(_port) - 1] = '\0';
 
 	device::Device::DeviceId device_id;
@@ -57,24 +60,36 @@ TofSense::TofSense(const char *port, uint8_t rotation) :
 	device_id.devid_s.bus_type = device::Device::DeviceBusType_SERIAL;
 
 	uint8_t bus_num = atoi(&_port[strlen(_port) - 1]);
-
 	if (bus_num < 10) {
 		device_id.devid_s.bus = bus_num;
 	}
 
 	_px4_rangefinder.set_device_id(device_id.devid);
 	_px4_rangefinder.set_rangefinder_type(distance_sensor_s::MAV_DISTANCE_SENSOR_LASER);
-	_px4_rangefinder.set_min_distance(0.03f);
-	_px4_rangefinder.set_max_distance(8.0f);
-	_px4_rangefinder.set_fov(math::radians(27.0f));
+	_px4_rangefinder.set_min_distance(MIN_DISTANCE_M);
+	_px4_rangefinder.set_max_distance(MAX_DISTANCE_M);
+	_px4_rangefinder.set_fov(FOV_RADIANS);
+
+	_parse_errors = perf_alloc(PC_COUNT, MODULE_NAME": parse_errors");
+	_loop_perf = perf_alloc(PC_ELAPSED, MODULE_NAME": loop");
 }
 
 TofSense::~TofSense()
 {
 	stop();
 
-	perf_free(_sample_perf);
-	perf_free(_comms_errors);
+	if (_comms_errors != nullptr) {
+		perf_free(_comms_errors);
+	}
+	if (_sample_perf != nullptr) {
+		perf_free(_sample_perf);
+	}
+	if (_parse_errors != nullptr) {
+		perf_free(_parse_errors);
+	}
+	if (_loop_perf != nullptr) {
+		perf_free(_loop_perf);
+	}
 }
 
 int TofSense::init()
@@ -86,7 +101,7 @@ int TofSense::init()
 
 		if (_fd < 0) {
 			PX4_ERR("Error opening fd");
-			return -1;
+			return PX4_ERROR;
 		}
 
 		unsigned speed = B921600;
@@ -99,19 +114,19 @@ int TofSense::init()
 
 		if ((termios_state = cfsetispeed(&uart_config, speed)) < 0) {
 			PX4_ERR("CFG: %d ISPD", termios_state);
-			ret = -1;
+			ret = PX4_ERROR;
 			break;
 		}
 
 		if ((termios_state = cfsetospeed(&uart_config, speed)) < 0) {
 			PX4_ERR("CFG: %d ISPD", termios_state);
-			ret = -1;
+			ret = PX4_ERROR;
 			break;
 		}
 
 		if ((termios_state = tcsetattr(_fd, TCSANOW, &uart_config)) < 0) {
 			PX4_ERR("baud %d ATTR", termios_state);
-			ret = -1;
+			ret = PX4_ERROR;
 			break;
 		}
 
@@ -131,7 +146,7 @@ int TofSense::init()
 
 		if (_fd < 0) {
 			PX4_ERR("FAIL: laser fd");
-			ret = -1;
+			ret = PX4_ERROR;
 			break;
 		}
 	} while (0);
@@ -234,7 +249,7 @@ int TofSense::collect()
 
 			_rx_buffer_len -= g_nts_frame0.fixed_part_size;
 
-			frame_parsed = true;   // === 等价 goto out
+			frame_parsed = true;
 		} else {
 			memmove(_rx_buffer, _rx_buffer + 1, _rx_buffer_len - 1);
 			_rx_buffer_len--;
@@ -247,16 +262,11 @@ int TofSense::collect()
 	_px4_rangefinder.update(timestamp_sample, distance_m, signal_q);
 	perf_end(_sample_perf);
 	return PX4_OK;
-
-
-	perf_end(_sample_perf);
-	return -EAGAIN;
 }
 
 void TofSense::print_status()
 {
 	PX4_INFO("Port: %s (FD: %d)", _port, _fd);
-	PX4_INFO("Rotation: %d", _rotation);
 
 	if (_comms_errors != nullptr) {
 		perf_print_counter(_comms_errors);
@@ -265,4 +275,3 @@ void TofSense::print_status()
 		perf_print_counter(_parse_errors);
 	}
 }
-

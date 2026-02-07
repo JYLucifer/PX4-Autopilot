@@ -32,3 +32,5 @@
 ############################################################################
 
 add_subdirectory(uwb_sr150)
+add_subdirectory(linktrack)
+add_subdirectory(linktrack_aoa)

@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2017-2019 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2012-2019 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,74 +31,46 @@
  *
  ****************************************************************************/
 
-#pragma once
+#ifndef NLINK_LINKTRACK_ANCHORFRAME0_H
+#define NLINK_LINKTRACK_ANCHORFRAME0_H
 
-#include <termios.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#include <drivers/drv_hrt.h>
-#include <lib/perf/perf_counter.h>
-#include <px4_platform_common/px4_config.h>
-#include <px4_platform_common/module.h>
-#include <px4_platform_common/px4_work_queue/ScheduledWorkItem.hpp>
-#include <lib/drivers/rangefinder/PX4Rangefinder.hpp>
-#include <uORB/topics/distance_sensor.h>
+#include "nlink_typedef.h"
 
-#include "nlink_tofsense_frame0.h"
-#include "nlink_utils.h"
+typedef struct {
+  uint8_t id;
+  linktrack_role_e role;
+  float pos_3d[3];
+  float dis_arr[8];
+} nlt_anchorframe0_node_t;
 
-#define TOFSENSE_DEFAULT_PORT	"/dev/ttyS3"  // 定义默认串口设备路径
+typedef struct {
+  linktrack_role_e role;
+  uint8_t id;
+  uint32_t local_time;
+  uint32_t system_time;
+  float voltage;
+  uint8_t valid_node_count;
+  nlt_anchorframe0_node_t *nodes[30];
+} nlt_anchorframe0_result_t;
 
-using namespace time_literals;
+typedef struct {
+  const size_t fixed_part_size;
+  const uint8_t frame_header;
+  const uint8_t function_mark;
+  const uint8_t tail_check;
+  nlt_anchorframe0_result_t result;
 
-namespace tofsense
-{
+  uint8_t (*const UnpackData)(const uint8_t *data, size_t data_length);
+} nlt_anchorframe0_t;
 
-/**
- * @class TofSense
- * @brief Driver for Nooploop TofSense laser distance sensors
- *
- * This driver communicates with TofSense sensors via UART serial port
- * using the nlink protocol library and publishes distance data through
- * the distance_sensor uORB topic.
- */
-class TofSense : public px4::ScheduledWorkItem
-{
-public:
-	TofSense(const char *port, uint8_t rotation = distance_sensor_s::ROTATION_DOWNWARD_FACING);
+extern nlt_anchorframe0_t nlt_anchorframe0_;
 
-	virtual ~TofSense();
+#ifdef __cplusplus
+}
+#endif
 
-	int init();
-
-	void print_status();
-
-private:
-
-    	int collect();
-
-    	void Run() override;
-
-	void start();
-	void stop();
-
-	PX4Rangefinder	_px4_rangefinder;
-
-	char _port[20] {};
-
-	int _fd{-1};
-
-	uint8_t _rx_buffer[512]{};
-	size_t _rx_buffer_len{0};
-
-	hrt_abstime _last_valid_data{0};
-
-	perf_counter_t _loop_perf{nullptr};
-	perf_counter_t _parse_errors{nullptr};
-
-	hrt_abstime _last_read{0};
-
-	perf_counter_t _comms_errors{perf_alloc(PC_COUNT, MODULE_NAME": com_err")};
-	perf_counter_t _sample_perf{perf_alloc(PC_ELAPSED, MODULE_NAME": read")};
-};
-
-} // namespace tofsense
+#endif // NLINK_LINKTRACK_ANCHORFRAME0_H

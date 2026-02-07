@@ -1,0 +1,7 @@
+menuconfig DRIVERS_UWB_LINKTRACK_AOA
+    bool "linktrack_aoa"
+    default n
+    ---help---
+        Enable support for linktrack_aoa
+
+

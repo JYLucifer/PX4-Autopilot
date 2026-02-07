@@ -1,0 +1,7 @@
+menuconfig DRIVERS_UWB_LINKTRACK
+    bool "linktrack"
+    default n
+    ---help---
+        Enable support for linktrack
+
+

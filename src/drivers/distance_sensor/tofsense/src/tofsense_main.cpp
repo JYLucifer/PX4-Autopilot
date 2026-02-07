@@ -49,60 +49,60 @@ int usage();
 
 int start(const char *port, uint8_t rotation)
 {
-    if (g_dev != nullptr) {
-        PX4_ERR("driver already started");
-        return PX4_OK;
-    }
+	if (g_dev != nullptr) {
+		PX4_ERR("driver already started");
+		return PX4_OK;
+	}
 
-    g_dev = new TofSense(port, rotation);
+	g_dev = new TofSense(port, rotation);
 
-    if (g_dev == nullptr) {
-        PX4_ERR("driver start failed");
-        return PX4_ERROR;
-    }
+	if (g_dev == nullptr) {
+		PX4_ERR("driver start failed");
+		return PX4_ERROR;
+	}
 
-    if (OK != g_dev->init()) {
-        PX4_ERR("driver start failed");
-        delete g_dev;
-        g_dev = nullptr;
-        return PX4_ERROR;
-    }
+	if (OK != g_dev->init()) {
+		PX4_ERR("driver start failed");
+		delete g_dev;
+		g_dev = nullptr;
+		return PX4_ERROR;
+	}
 
-    return PX4_OK;
+	return PX4_OK;
 }
 
 int status()
 {
-    if (g_dev == nullptr) {
-        PX4_INFO("Driver not running");
-        return 1;
-    }
+	if (g_dev == nullptr) {
+		PX4_INFO("Driver not running");
+		return 1;
+	}
 
-    printf("state @ %p\n", g_dev);
-    g_dev->print_status();
-    return 0;
+	printf("state @ %p\n", g_dev);
+	g_dev->print_status();
+	return 0;
 }
 
 int stop()
 {
-    if (g_dev != nullptr) {
-        PX4_INFO("stopping driver");
-        delete g_dev;
-        g_dev = nullptr;
-        PX4_INFO("Driver stopped");
-        return 0;
-    }else {
-        PX4_ERR("driver not running");
-        return 1;
-    }
+	if (g_dev != nullptr) {
+		PX4_INFO("stopping driver");
+		delete g_dev;
+		g_dev = nullptr;
+		PX4_INFO("Driver stopped");
+		return 0;
+	} else {
+		PX4_ERR("driver not running");
+		return 1;
+	}
 
-    return PX4_OK;
+	return PX4_OK;
 }
 
 int usage()
 {
-    PRINT_MODULE_DESCRIPTION(
-        R"DESCR_STR(
+	PRINT_MODULE_DESCRIPTION(
+		R"DESCR_STR(
 ### Description
 Driver for Nooploop TofSense laser distance sensors.
 
@@ -130,14 +130,14 @@ Display driver status:
 $ tofsense status
 )DESCR_STR");
 
-    // 打印标准PX4模块使用信息
-    PRINT_MODULE_USAGE_NAME("tofsense", "driver");
-    PRINT_MODULE_USAGE_SUBCATEGORY("distance_sensor");
-    PRINT_MODULE_USAGE_COMMAND_DESCR("start", "Start driver");
-    PRINT_MODULE_USAGE_PARAM_STRING('d', TOFSENSE_DEFAULT_PORT, "<file:dev>", "Serial device", false);
-    PRINT_MODULE_USAGE_PARAM_INT('R', 25, 0, 25, "Sensor rotation - downward facing by default", true);
-    PRINT_MODULE_USAGE_COMMAND_DESCR("stop", "Stop driver");
-    PRINT_MODULE_USAGE_COMMAND_DESCR("status", "Driver status");
+	// 打印标准PX4模块使用信息
+	PRINT_MODULE_USAGE_NAME("tofsense", "driver");
+	PRINT_MODULE_USAGE_SUBCATEGORY("distance_sensor");
+	PRINT_MODULE_USAGE_COMMAND_DESCR("start", "Start driver");
+	PRINT_MODULE_USAGE_PARAM_STRING('d', TOFSENSE_DEFAULT_PORT, "<file:dev>", "Serial device", false);
+	PRINT_MODULE_USAGE_PARAM_INT('R', 25, 0, 25, "Sensor rotation - downward facing by default", true);
+	PRINT_MODULE_USAGE_COMMAND_DESCR("stop", "Stop driver");
+	PRINT_MODULE_USAGE_COMMAND_DESCR("status", "Driver status");
 	return PX4_OK;
 }
 
@@ -145,50 +145,49 @@ $ tofsense status
 
 extern "C" __EXPORT int tofsense_main(int argc, char *argv[])
 {
-    int ch = 0;
-    uint8_t rotation = distance_sensor_s::ROTATION_DOWNWARD_FACING;
-    const char *device_path = TOFSENSE_DEFAULT_PORT;
-    int myoptind = 1;
-    const char *myoptarg = nullptr;
+	int ch = 0;
+	uint8_t rotation = distance_sensor_s::ROTATION_DOWNWARD_FACING;
+	const char *device_path = TOFSENSE_DEFAULT_PORT;
+	int myoptind = 1;
+	const char *myoptarg = nullptr;
 
-    while ((ch = px4_getopt(argc, argv, "R:d:", &myoptind, &myoptarg)) != EOF) {
-        switch (ch) {
-        case 'R':
-            rotation = (uint8_t)atoi(myoptarg);
-            break;
+	while ((ch = px4_getopt(argc, argv, "R:d:", &myoptind, &myoptarg)) != EOF) {
+		switch (ch) {
+		case 'R':
+			rotation = (uint8_t)atoi(myoptarg);
+			break;
 
-        case 'd':
-            device_path = myoptarg;
-            break;
+		case 'd':
+			device_path = myoptarg;
+			break;
 
-        default:
-            return tofsense::usage();
-        }
-    }
+		default:
+			return tofsense::usage();
+		}
+	}
 
-    if (myoptind >= argc) {
-        return tofsense::usage();
-    }
+	if (myoptind >= argc) {
+		return tofsense::usage();
+	}
 
-    const char *command = argv[myoptind];
+	const char *command = argv[myoptind];
 
-    if (!strcmp(command, "start")) {
-        if (strcmp(device_path, "") != 0) {
-            return tofsense::start(device_path, rotation);
+	if (!strcmp(command, "start")) {
+		if (strcmp(device_path, "") != 0) {
+			return tofsense::start(device_path, rotation);
 
-        } else {
-            PX4_WARN("Error: Please specify a valid serial device path!");
-            return tofsense::usage();
-        }
+		} else {
+			PX4_WARN("Error: Please specify a valid serial device path!");
+			return tofsense::usage();
+		}
 
-    } else if (!strcmp(command, "stop")) {
-        return tofsense::stop();
+	} else if (!strcmp(command, "stop")) {
+		return tofsense::stop();
 
-    } else if (!strcmp(command, "status")) {
-        return tofsense::status();
-    }
+	} else if (!strcmp(command, "status")) {
+		return tofsense::status();
+	}
 
-    // 未知命令处理
-    PX4_ERR("Unrecognized command: %s", command);
-    return tofsense::usage();
+	PX4_ERR("Unrecognized command: %s", command);
+	return tofsense::usage();
 }

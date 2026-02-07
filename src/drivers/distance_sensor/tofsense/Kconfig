@@ -1,0 +1,5 @@
+menuconfig DRIVERS_DISTANCE_SENSOR_TOFSENSE
+    bool "tofsense"
+    default n
+    ---help---
+		Enable support for tofsense

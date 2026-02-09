@@ -44,24 +44,23 @@ TofSensem::TofSensem(const char *port) :
 	ScheduledWorkItem(MODULE_NAME, px4::serial_port_to_wq(port)),
 	_tofsensem_scan_pub(ORB_ID(tofsensem_scan))
 {
-    strncpy(_port, port, sizeof(_port) - 1);
+	strncpy(_port, port, sizeof(_port) - 1);
+	_port[sizeof(_port) - 1] = '\0';
 
-    _port[sizeof(_port) - 1] = '\0';
+	device::Device::DeviceId device_id;
+	device_id.devid_s.devtype = DRV_DIST_DEVTYPE_TOFSENSEM;
+	device_id.devid_s.bus_type = device::Device::DeviceBusType_SERIAL;
 
-    device::Device::DeviceId device_id;
-    device_id.devid_s.devtype = DRV_DIST_DEVTYPE_TOFSENSEM;
-    device_id.devid_s.bus_type = device::Device::DeviceBusType_SERIAL;
+		uint8_t bus_num = atoi(&_port[strlen(_port) - 1]);
 
-	uint8_t bus_num = atoi(&_port[strlen(_port) - 1]);
+		if (bus_num < 10) {
+			device_id.devid_s.bus = bus_num;
+		}
 
-	if (bus_num < 10) {
-		device_id.devid_s.bus = bus_num;
-	}
-
-    _loop_perf = perf_alloc(PC_ELAPSED, MODULE_NAME": cycle");
-    _comms_errors = perf_alloc(PC_COUNT, MODULE_NAME": com_err");
-    _parse_errors = perf_alloc(PC_COUNT, MODULE_NAME": parse_err");
-    PX4_INFO("TofSensem driver created for port: %s", _port);
+	_loop_perf = perf_alloc(PC_ELAPSED, MODULE_NAME": cycle");
+	_comms_errors = perf_alloc(PC_COUNT, MODULE_NAME": com_err");
+	_parse_errors = perf_alloc(PC_COUNT, MODULE_NAME": parse_err");
+	PX4_INFO("TofSensem driver created for port: %s", _port);
 }
 
 TofSensem::~TofSensem()
@@ -250,14 +249,7 @@ void TofSensem::InitFrame0()
 
 void TofSensem::print_status()
 {
-    PX4_INFO("=== TofSensem Driver Status ===");
     PX4_INFO("Port: %s (FD: %d)", _port, _fd);
-	PX4_INFO("Buffer: %d/%d bytes", _rx_buffer_len, sizeof(_rx_buffer));
-
-    if (_last_valid_data > 0) {
-        uint32_t elapsed = (hrt_absolute_time() - _last_valid_data) / 1000;
-        PX4_INFO("Last valid data: %lu ms ago", (unsigned long)elapsed);
-    }
 
     if (_comms_errors != nullptr) {
         perf_print_counter(_comms_errors);

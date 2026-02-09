@@ -37,7 +37,7 @@ px4_add_module(
         src/tofsensem_main.cpp
         src/tofsensem.cpp
         src/nlink_tofsensem_frame0.c
-        src/nlink_utils.c
     DEPENDS
+    	nlink_utils
         drivers_rangefinder
 )

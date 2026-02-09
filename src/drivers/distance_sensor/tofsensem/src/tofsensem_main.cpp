@@ -109,7 +109,7 @@ Driver for Nooploop TofSensem laser distance sensors.
 
 This driver communicates with TofSensem sensors via UART serial port
 using the nlink protocol library and publishes distance data through
-the distance_sensor uORB topic.
+the tofsensem_scan uORB topic.
 
 ### Implementation
 - Uses nlink_utils protocol parsing library

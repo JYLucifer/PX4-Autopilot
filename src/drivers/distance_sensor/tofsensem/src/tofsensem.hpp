@@ -46,7 +46,7 @@
 #include <uORB/topics/tofsensem_scan.h>
 
 #include "nlink_tofsensem_frame0.h"
-#include "nlink_utils.h"
+#include "nlink_utils/nlink_utils.h"
 
 #define TOFSENSEM_DEFAULT_PORT	"/dev/ttyS3"
 

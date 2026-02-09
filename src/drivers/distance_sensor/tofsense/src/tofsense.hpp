@@ -44,7 +44,7 @@
 #include <uORB/topics/distance_sensor.h>
 
 #include "nlink_tofsense_frame0.h"
-#include "nlink_utils.h"
+#include "nlink_utils/nlink_utils.h"
 
 #define TOFSENSE_DEFAULT_PORT	"/dev/ttyS3"  // 定义默认串口设备路径
 

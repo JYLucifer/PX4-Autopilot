@@ -30,7 +30,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
-#include "nlink_utils.h"
+#include "nlink_utils/nlink_utils.h"
 
 int32_t NLINK_ParseInt24(nint24_t data)
 {

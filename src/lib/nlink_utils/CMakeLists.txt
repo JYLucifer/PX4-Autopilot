@@ -1,6 +1,6 @@
 ############################################################################
 #
-#   Copyright (c) 2017-2019 PX4 Development Team. All rights reserved.
+#   Copyright (c) 2018-2020 PX4 Development Team. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -30,14 +30,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ############################################################################
-px4_add_module(
-    MODULE drivers__tofsense
-    MAIN tofsense
-    SRCS
-        src/tofsense_main.cpp
-        src/tofsense.cpp
-        src/nlink_tofsense_frame0.c
-    DEPENDS
-	nlink_utils
-        drivers_rangefinder
+set(MODULE nlink_utils)
+
+px4_add_library(nlink_utils
+    src/nlink_utils.c
+)
+
+target_include_directories(nlink_utils
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
 )

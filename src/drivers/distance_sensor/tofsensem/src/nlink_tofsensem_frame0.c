@@ -32,8 +32,7 @@
  ****************************************************************************/
 
 #include "nlink_tofsensem_frame0.h"
-
-#include "nlink_utils.h"
+#include "nlink_utils/nlink_utils.h"
 
 #pragma pack(1)
 typedef struct {

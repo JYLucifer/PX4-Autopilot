@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2017-2019 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2026 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -46,21 +46,13 @@
 #include "nlink_tofsense_frame0.h"
 #include "nlink_utils/nlink_utils.h"
 
-#define TOFSENSE_DEFAULT_PORT	"/dev/ttyS3"  // 定义默认串口设备路径
+#define TOFSENSE_DEFAULT_PORT	"/dev/ttyS3"
 
 using namespace time_literals;
 
 namespace tofsense
 {
 
-/**
- * @class TofSense
- * @brief Driver for Nooploop TofSense laser distance sensors
- *
- * This driver communicates with TofSense sensors via UART serial port
- * using the nlink protocol library and publishes distance data through
- * the distance_sensor uORB topic.
- */
 class TofSense : public px4::ScheduledWorkItem
 {
 public:

@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2012-2019 PX4 Development Team. All rights reserved.
+ *   Copyright (C) 2026 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,7 +33,7 @@
 
 #include "linktrack_parser/nlink_linktrack_anchorframe0.h"
 
-#include "linktrack_parser/nlink_utils.h"
+#include "nlink_utils/nlink_utils.h"
 
 #pragma pack(1)
 typedef struct {

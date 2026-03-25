@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2017-2019 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2026 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -36,7 +36,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-//#include "nlink_typedef.h"
+#include "nlink_utils/nlink_typedef.h"
 
 #ifndef NTS_FRAME0_T_DEFINED
 #define NTS_FRAME0_T_DEFINED

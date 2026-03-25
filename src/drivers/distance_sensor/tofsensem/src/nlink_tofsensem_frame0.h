@@ -36,7 +36,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-//#include "nlink_typedef.h"
+#include "nlink_utils/nlink_typedef.h"
 
 typedef struct {
   float dis;

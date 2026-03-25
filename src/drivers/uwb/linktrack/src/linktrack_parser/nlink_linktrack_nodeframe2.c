@@ -33,7 +33,7 @@
 
 #include "linktrack_parser/nlink_linktrack_nodeframe2.h"
 
-#include "linktrack_parser/nlink_utils.h"
+#include "nlink_utils/nlink_utils.h"
 
 #pragma pack(1)
 typedef struct {

@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2012-2019 PX4 Development Team. All rights reserved.
+ *   Copyright (C) 2026 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -46,63 +46,71 @@ int status();
 int stop();
 int usage();
 
+namespace linktrack
+{
+static Linktrack *g_dev{nullptr};
+
+int start(const char *port);
+int status();
+int stop();
+int usage();
+
 int start(const char *port)
 {
-    if (g_dev != nullptr) {
-        PX4_ERR("driver already started");
-        return PX4_OK;
-    }
+	if (g_dev != nullptr) {
+		PX4_ERR("driver already started");
+		return PX4_OK;
+	}
 
-    g_dev = new Linktrack(port);
+	g_dev = new Linktrack(port);
 
-    if (g_dev == nullptr) {
-        PX4_ERR("driver start failed");
-        return PX4_ERROR;
-    }
+	if (g_dev == nullptr) {
+		PX4_ERR("driver start failed");
+		return PX4_ERROR;
+	}
 
-    if (OK != g_dev->init()) {
-        PX4_ERR("driver start failed");
-        delete g_dev;
-        g_dev = nullptr;
-        return PX4_ERROR;
-    }
+	if (OK != g_dev->init()) {
+		PX4_ERR("driver start failed");
+		delete g_dev;
+		g_dev = nullptr;
+		return PX4_ERROR;
+	}
 
-    return PX4_OK;
+	return PX4_OK;
 }
 
 int status()
 {
-    if (g_dev == nullptr) {
-        PX4_INFO("Driver not running");
-        return 1;
-    }
+	if (g_dev == nullptr) {
+		PX4_INFO("Driver not running");
+		return 1;
+	}
 
-    printf("state @ %p\n", g_dev);
+	printf("state @ %p\n", g_dev);
 
-    g_dev->print_status();
-    return 0;
+	g_dev->print_status();
+	return 0;
 }
 
 int stop()
 {
-    if (g_dev != nullptr) {
-        PX4_INFO("stopping driver");
+	if (g_dev != nullptr) {
+		PX4_INFO("stopping driver");
 
-        delete g_dev;
-        g_dev = nullptr;
-        PX4_INFO("Driver stopped");
-        return 0;
-    }else {
-        PX4_ERR("driver not running");
-        return 1;
-    }
-    return PX4_OK;
+		delete g_dev;
+		g_dev = nullptr;
+		PX4_INFO("Driver stopped");
+		return 0;
+	} else {
+		PX4_ERR("driver not running");
+		return 1;
+	}
 }
 
 int usage()
 {
-    PRINT_MODULE_DESCRIPTION(
-        R"DESCR_STR(
+	PRINT_MODULE_DESCRIPTION(
+		R"DESCR_STR(
 ### Description
 Driver for Nooploop Linktrack laser distance sensors.
 
@@ -130,58 +138,58 @@ Display driver status:
 $ linktrack status
 )DESCR_STR");
 
-    PRINT_MODULE_USAGE_NAME("linktrack", "driver");
+	PRINT_MODULE_USAGE_NAME("linktrack", "driver");
 	PRINT_MODULE_USAGE_SUBCATEGORY("uwb");
-    PRINT_MODULE_USAGE_COMMAND_DESCR("start", "Start driver");
-    PRINT_MODULE_USAGE_PARAM_STRING('d', LINKTRACK_DEFAULT_PORT, "<file:dev>", "Serial device", true);
-    PRINT_MODULE_USAGE_PARAM_INT('R', 25, 0, 25, "Sensor rotation - downward facing by default", true);
-    PRINT_MODULE_USAGE_COMMAND_DESCR("stop", "Stop driver");
-    PRINT_MODULE_USAGE_COMMAND_DESCR("status", "Driver status");
+	PRINT_MODULE_USAGE_COMMAND_DESCR("start", "Start driver");
+	PRINT_MODULE_USAGE_PARAM_STRING('d', LINKTRACK_DEFAULT_PORT, "<file:dev>", "Serial device", true);
+	PRINT_MODULE_USAGE_PARAM_INT('R', 25, 0, 25, "Sensor rotation - downward facing by default", true);
+	PRINT_MODULE_USAGE_COMMAND_DESCR("stop", "Stop driver");
+	PRINT_MODULE_USAGE_COMMAND_DESCR("status", "Driver status");
 
-    return 0;
+	return 0;
 }
 
 } // namespace linktrack
 
 extern "C" __EXPORT int linktrack_main(int argc, char *argv[])
 {
-    int ch = 0;
+	int ch = 0;
 
-    const char *device_path = LINKTRACK_DEFAULT_PORT;
+	const char *device_path = LINKTRACK_DEFAULT_PORT;
 
-    int myoptind = 1;
-    const char *myoptarg = nullptr;
+	int myoptind = 1;
+	const char *myoptarg = nullptr;
 
-    while ((ch = px4_getopt(argc, argv, "R:d:", &myoptind, &myoptarg)) != EOF) {
-        switch (ch) {
-        case 'd':
-            device_path = myoptarg;
-            break;
-        default:
-            return linktrack::usage();
-        }
-    }
+	while ((ch = px4_getopt(argc, argv, "R:d:", &myoptind, &myoptarg)) != EOF) {
+		switch (ch) {
+		case 'd':
+			device_path = myoptarg;
+			break;
+		default:
+			return linktrack::usage();
+		}
+	}
 
-    if (myoptind >= argc) {
-        return linktrack::usage();
-    }
+	if (myoptind >= argc) {
+		return linktrack::usage();
+	}
 
-    const char *command = argv[myoptind];
+	const char *command = argv[myoptind];
 
-    if (!strcmp(command, "start")) {
-        if (strcmp(device_path, "") != 0) {
-            return linktrack::start(device_path);
-        } else {
-            PX4_WARN("Error: Please specify a valid serial device path!");
-            return linktrack::usage();
-        }
-    } else if (!strcmp(command, "stop")) {
-        return linktrack::stop();
-    } else if (!strcmp(command, "status")) {
-        return linktrack::status();
-    }
+	if (!strcmp(command, "start")) {
+		if (strcmp(device_path, "") != 0) {
+			return linktrack::start(device_path);
+		} else {
+			PX4_WARN("Error: Please specify a valid serial device path!");
+			return linktrack::usage();
+		}
+	} else if (!strcmp(command, "stop")) {
+		return linktrack::stop();
+	} else if (!strcmp(command, "status")) {
+		return linktrack::status();
+	}
 
-    PX4_ERR("Unrecognized command: %s", command);
-    return linktrack::usage();
+	PX4_ERR("Unrecognized command: %s", command);
+	return linktrack::usage();
 }
 

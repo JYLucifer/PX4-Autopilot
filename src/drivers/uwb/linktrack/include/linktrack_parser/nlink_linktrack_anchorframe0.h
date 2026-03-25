@@ -38,7 +38,7 @@
 extern "C" {
 #endif
 
-#include "nlink_typedef.h"
+#include "nlink_utils/nlink_typedef.h"
 
 typedef struct {
   uint8_t id;
